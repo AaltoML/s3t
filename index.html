@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="S³T: Self-Supervised Self-Distillation over Time">
+  <meta name="description" content="S³T learns visual state tracking from unlabeled videos by distilling a dense temporal view into a sparse view of the same model.">
+  <meta name="keywords" content="S3T, temporal self-distillation, video-language models, visual state tracking, self-supervised learning, StateGen">
+  <meta name="author" content="Shravan Venkatraman, Wenshuai Zhao, Mohammad Hassan Vali, Arno Solin">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Temporal Self-Distillation: Learning Visual State Tracking in Videos Without Supervision">
+  <meta property="og:description" content="Temporal self-distillation for continuous visual state tracking in videos.">
+  <meta property="og:image" content="static/images/teaser.png">
+  <meta property="og:image:alt" content="Overview of S3T temporal self-distillation">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="S³T: Self-Supervised Self-Distillation over Time">
+  <meta name="twitter:description" content="Learning visual state tracking from unlabeled videos through temporal self-distillation.">
+  <meta name="twitter:image" content="static/images/teaser.png">
+
+  <meta name="citation_title" content="Temporal Self-Distillation: Learning Visual State Tracking in Videos Without Supervision">
+  <meta name="citation_author" content="Venkatraman, Shravan">
+  <meta name="citation_author" content="Zhao, Wenshuai">
+  <meta name="citation_author" content="Vali, Mohammad Hassan">
+  <meta name="citation_author" content="Solin, Arno">
+  <meta name="citation_pdf_url" content="static/pdfs/s3t_wacv.pdf">
+
+  <meta name="theme-color" content="#3156a4">
+  <title>S³T: Temporal Self-Distillation for Visual State Tracking</title>
+  <link rel="icon" type="image/png" href="static/images/logo.png">
+  <link rel="apple-touch-icon" href="static/images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+</head>
+<body>
+  <button class="scroll-to-top" type="button" aria-label="Scroll to top" title="Scroll to top">
+    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  </button>
+
+  <div class="more-works-container">
+    <button class="more-works-btn" type="button" aria-expanded="false" aria-controls="more-works-dropdown">
+      <i class="fas fa-layer-group" aria-hidden="true"></i>
+      More Works
+      <i class="fas fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+    </button>
+    <div class="more-works-dropdown" id="more-works-dropdown" hidden>
+      <div class="dropdown-header">
+        <div>
+          <span class="eyebrow">Selected research</span>
+          <h2>More Works</h2>
+        </div>
+        <button class="close-btn" type="button" aria-label="Close more works">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="works-list">
+        <a href="https://mbzuai-oryx.github.io/CVPD/" class="work-item" target="_blank" rel="noopener">
+          <span><strong>CVPD</strong><small>BMVC 2026</small><em>Counterfactual visual blind spots provide dense distillation targets.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://mbzuai-oryx.github.io/VISE/" class="work-item" target="_blank" rel="noopener">
+          <span><strong>VISE</strong><small>ECCV 2026</small><em>Geometric and semantic invariance rewards visual conditioning on unlabeled images.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://sites.google.com/view/sparsely-supervised-diffusion/home" class="work-item" target="_blank" rel="noopener">
+          <span><strong>Sparsely Supervised Diffusion</strong><small>arXiv 2026</small><em>Sparse supervision reduces excessive spatial correlations in diffusion models.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://arxiv.org/abs/2605.23856" class="work-item" target="_blank" rel="noopener">
+          <span><strong>JOPAT</strong><small>RWM @ RSS 2026 · Oral</small><em>Point tracks give world-action models an explicit motion representation under occlusion.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://github.com/AaltoML/DiVeQ" class="work-item" target="_blank" rel="noopener">
+          <span><strong>DiVeQ</strong><small>ICLR 2026</small><em>An error-vector reparameterization makes hard vector quantization differentiable.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://1mather.github.io/LC-VAE/" class="work-item" target="_blank" rel="noopener">
+          <span><strong>LC-VAE</strong><small>CVPR Findings 2026</small><em>Latent compression produces representations suited to video diffusion.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://github.com/mbzuai-oryx/Ask-Solve-Generate" class="work-item" target="_blank" rel="noopener">
+          <span><strong>Ask, Solve, Generate</strong><small>2026</small><em>Self-consistency connects multimodal understanding and generation.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+        <a href="https://mbzuai-oryx.github.io/EvoLMM/" class="work-item" target="_blank" rel="noopener">
+          <span><strong>EvoLMM</strong><small>2025</small><em>Proposer and solver roles learn from continuous self-consistency rewards.</em></span>
+          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero publication-header">
+      <div class="hero-body">
+        <div class="container is-widescreen has-text-centered">
+          <img class="paper-logo" src="static/images/logo.png" alt="S3T robot holding sparse and dense video strips">
+          <p class="method-name">S³T · Self-Supervised Self-Distillation over Time</p>
+          <h1 class="title publication-title">
+            <span class="title-line">Temporal Self-Distillation: Learning Visual</span>
+            <span class="title-line">State Tracking in Videos Without Supervision</span>
+          </h1>
+
+          <div class="publication-authors">
+            <a href="https://shravfolio.vercel.app/" target="_blank" rel="noopener">Shravan Venkatraman<sup>1,2</sup></a>
+            <a href="https://wenshuaizhao.github.io/" target="_blank" rel="noopener">Wenshuai Zhao<sup>1</sup></a>
+            <a href="https://research.aalto.fi/en/persons/mohammad-hassan-vali/" target="_blank" rel="noopener">Mohammad Hassan Vali<sup>1</sup></a>
+            <a href="https://users.aalto.fi/~asolin/" target="_blank" rel="noopener">Arno Solin<sup>1</sup></a>
+          </div>
+          <div class="affiliations">
+            <p><sup>1</sup>ELLIS Institute Finland &amp; Department of Computer Science, Aalto University, Finland</p>
+            <p><sup>2</sup>Mohamed bin Zayed University of Artificial Intelligence, UAE</p>
+          </div>
+
+          <div class="publication-links">
+            <a class="button is-dark" href="static/pdfs/s3t_wacv.pdf" target="_blank" rel="noopener">
+              <span class="icon"><i class="fas fa-file-pdf" aria-hidden="true"></i></span><span>Paper</span>
+            </a>
+            <a class="button is-dark" href="https://github.com/AaltoML/s3t" target="_blank" rel="noopener">
+              <span class="icon"><i class="fab fa-github" aria-hidden="true"></i></span><span>Code</span>
+            </a>
+            <a class="button is-dark" href="https://huggingface.co/shravvvv/s3t" target="_blank" rel="noopener">
+              <span class="icon model-icon" aria-hidden="true">🤗</span><span>Models</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section teaser-section">
+      <div class="container is-widescreen">
+        <figure class="paper-figure paper-figure-wide">
+          <img src="static/images/teaser.png" alt="Comparison of S3T with supervised, self-evolving, spatial privileged, and temporal self-supervised methods">
+        </figure>
+        <p class="lead has-text-centered">A dense reading of an unlabeled clip teaches the same model to maintain scene state from a sparse reading. Training uses no labels, separate teacher, or external reward.</p>
+      </div>
+    </section>
+
+    <section class="section qualitative-section" id="qualitative">
+      <div class="container is-widescreen">
+        <p class="section-kicker">Qualitative results</p>
+        <h2 class="title is-3 has-text-centered">Qualitative results on VSTAT</h2>
+        <p class="video-examples-intro">S³T answers all ten video examples correctly, while all five comparison models answer incorrectly. The final tab shows the long-prefix comparisons from the paper.</p>
+
+        <div class="video-tabs" id="video-tabs" data-tabs>
+          <div class="tab-list video-tab-list" role="tablist" aria-label="VSTAT qualitative examples">
+            <button class="tab-button" id="video-volleyball-a-tab" type="button" role="tab" aria-selected="true" aria-controls="video-volleyball-a-panel" data-tab-group="videos">Volleyball A</button>
+            <button class="tab-button" id="video-volleyball-b-tab" type="button" role="tab" aria-selected="false" aria-controls="video-volleyball-b-panel" data-tab-group="videos" tabindex="-1">Volleyball B</button>
+            <button class="tab-button" id="video-tennis-score-tab" type="button" role="tab" aria-selected="false" aria-controls="video-tennis-score-panel" data-tab-group="videos" tabindex="-1">Tennis score</button>
+            <button class="tab-button" id="video-cup-stacking-tab" type="button" role="tab" aria-selected="false" aria-controls="video-cup-stacking-panel" data-tab-group="videos" tabindex="-1">Cup stacking</button>
+            <button class="tab-button" id="video-tennis-backhand-tab" type="button" role="tab" aria-selected="false" aria-controls="video-tennis-backhand-panel" data-tab-group="videos" tabindex="-1">Tennis backhand</button>
+            <button class="tab-button" id="video-shell-game-tab" type="button" role="tab" aria-selected="false" aria-controls="video-shell-game-panel" data-tab-group="videos" tabindex="-1">Shell game</button>
+            <button class="tab-button" id="video-tilted-box-tab" type="button" role="tab" aria-selected="false" aria-controls="video-tilted-box-panel" data-tab-group="videos" tabindex="-1">Tilted box</button>
+            <button class="tab-button" id="video-funnel-ball-tab" type="button" role="tab" aria-selected="false" aria-controls="video-funnel-ball-panel" data-tab-group="videos" tabindex="-1">Funnel ball</button>
+            <button class="tab-button" id="video-matryoshka-a-tab" type="button" role="tab" aria-selected="false" aria-controls="video-matryoshka-a-panel" data-tab-group="videos" tabindex="-1">Matryoshka A</button>
+            <button class="tab-button" id="video-matryoshka-b-tab" type="button" role="tab" aria-selected="false" aria-controls="video-matryoshka-b-panel" data-tab-group="videos" tabindex="-1">Matryoshka B</button>
+            <button class="tab-button" id="prefix-tracking-tab" type="button" role="tab" aria-selected="false" aria-controls="prefix-tracking-panel" data-tab-group="videos" tabindex="-1">Prefix tracking</button>
+          </div>
+
+          <div class="tab-panel" id="video-volleyball-a-panel" role="tabpanel" aria-labelledby="video-volleyball-a-tab">
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc1413_volleyball.mp4" poster="static/images/video-posters/doc1413_volleyball.jpg" controls playsinline preload="metadata" aria-label="Volleyball video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT-YouTube</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>How many different players hit the ball in total?</h3>
+                <p class="reference-answer">Reference answer: <strong>10</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the volleyball example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>10</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>8</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>2</td></tr>
+                      <tr><td>Molmo2-8B</td><td>3</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>2</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>3</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-volleyball-b-panel" role="tabpanel" aria-labelledby="video-volleyball-b-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc1456_volleyball.mp4" poster="static/images/video-posters/doc1456_volleyball.jpg" controls playsinline preload="metadata" aria-label="Second volleyball video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT-YouTube</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>How many different players hit the ball in total?</h3>
+                <p class="reference-answer">Reference answer: <strong>4</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the second volleyball example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>4</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>5</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>2</td></tr>
+                      <tr><td>Molmo2-8B</td><td>3</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>2</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>3</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-tennis-score-panel" role="tabpanel" aria-labelledby="video-tennis-score-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc1208_tennis.mp4" poster="static/images/video-posters/doc1208_tennis.jpg" controls playsinline preload="metadata" aria-label="Tennis scoring video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT-YouTube</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>How many times does the white-shirt player score?</h3>
+                <p class="reference-answer">Reference answer: <strong>1</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the tennis scoring example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>1</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>0</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>2</td></tr>
+                      <tr><td>Molmo2-8B</td><td>2</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>2</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>2</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-cup-stacking-panel" role="tabpanel" aria-labelledby="video-cup-stacking-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc0389_cup_stacking.mp4" poster="static/images/video-posters/doc0389_cup_stacking.jpg" controls playsinline preload="metadata" aria-label="Cup stacking video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT self-recorded</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>What animal is drawn on the cup that is seventh from the bottom? (A) Monkey, (B) Lion, (C) Tiger, (D) Zebra.</h3>
+                <p class="reference-answer">Reference answer: <strong>D</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the cup stacking example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>D</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>C</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>C</td></tr>
+                      <tr><td>Molmo2-8B</td><td>C</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>C</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>A</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-tennis-backhand-panel" role="tabpanel" aria-labelledby="video-tennis-backhand-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc1134_tennis.mp4" poster="static/images/video-posters/doc1134_tennis.jpg" controls playsinline preload="metadata" aria-label="Tennis backhand video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT-YouTube</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>How many times does the blue-shirt player return the ball with a backhand?</h3>
+                <p class="reference-answer">Reference answer: <strong>3</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the tennis backhand example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>3</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>4</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>2</td></tr>
+                      <tr><td>Molmo2-8B</td><td>4</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>2</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>1</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-shell-game-panel" role="tabpanel" aria-labelledby="video-shell-game-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc0920_shell_game.mp4" poster="static/images/video-posters/doc0920_shell_game.jpg" controls playsinline preload="metadata" aria-label="Shell game video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT self-recorded</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>At the end of the video, which position is the cup containing the smaller cup in? Use the viewer's perspective: (A) Right, (B) Left, (C) Center.</h3>
+                <p class="reference-answer">Reference answer: <strong>A</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the shell game example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>A</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>C</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>C</td></tr>
+                      <tr><td>Molmo2-8B</td><td>C</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>C</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>C</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-tilted-box-panel" role="tabpanel" aria-labelledby="video-tilted-box-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc1339_tilt_v2.mp4" poster="static/images/video-posters/doc1339_tilt_v2.jpg" controls playsinline preload="metadata" aria-label="Tilted box video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT synthetic</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>A ball starts at corner 1, the top-left. After the box is closed and tilted six times, which corner contains the ball? Corner mapping: 1 top-left, 2 top-right, 3 bottom-right, 4 bottom-left.</h3>
+                <p class="reference-answer">Reference answer: <strong>2</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the tilted box example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>2</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>4</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>4</td></tr>
+                      <tr><td>Molmo2-8B</td><td>3</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>4</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>4</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-funnel-ball-panel" role="tabpanel" aria-labelledby="video-funnel-ball-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc0477_funnel_ball.mp4" poster="static/images/video-posters/doc0477_funnel_ball.jpg" controls playsinline preload="metadata" aria-label="Funnel ball video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT synthetic</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>Balls are indexed from left to right in the last frame before any release. Which ball took the longest to fall through the hole after its own release? (A) ball_3, (B) ball_1, (C) ball_2, (D) ball_6.</h3>
+                <p class="reference-answer">Reference answer: <strong>B</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the funnel ball example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>B</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>A</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>A</td></tr>
+                      <tr><td>Molmo2-8B</td><td>A</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>A</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>D</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-matryoshka-a-panel" role="tabpanel" aria-labelledby="video-matryoshka-a-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc0788_matryoshka.mp4" poster="static/images/video-posters/doc0788_matryoshka.jpg" controls playsinline preload="metadata" aria-label="Matryoshka doll video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT-YouTube</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>How many dolls are there in the opened matryoshka set?</h3>
+                <p class="reference-answer">Reference answer: <strong>8</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the first matryoshka example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>8</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>6</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>7</td></tr>
+                      <tr><td>Molmo2-8B</td><td>6</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>7</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>6</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="video-matryoshka-b-panel" role="tabpanel" aria-labelledby="video-matryoshka-b-tab" hidden>
+            <div class="video-example-grid">
+              <div class="video-example-media">
+                <video src="static/videos/doc0784_matryoshka.mp4" poster="static/images/video-posters/doc0784_matryoshka.jpg" controls playsinline preload="metadata" aria-label="Second matryoshka doll video from VSTAT"></video>
+                <p class="video-source">Source: VSTAT-YouTube</p>
+              </div>
+              <div class="video-example-result">
+                <p class="video-question-label">Question</p>
+                <h3>How many dolls are there in the opened matryoshka set?</h3>
+                <p class="reference-answer">Reference answer: <strong>5</strong></p>
+                <div class="table-scroll answer-table-wrap" role="region" aria-label="Answers for the second matryoshka example" tabindex="0">
+                  <table class="paper-table answer-table">
+                    <thead><tr><th>Model</th><th>Answer</th></tr></thead>
+                    <tbody>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>5</strong> <span class="answer-status">Correct</span></td></tr>
+                      <tr><td>LLaVA-OV-2-8B</td><td>4</td></tr>
+                      <tr><td>Video-Zero-8B</td><td>4</td></tr>
+                      <tr><td>Molmo2-8B</td><td>4</td></tr>
+                      <tr><td>Qwen3-VL-8B</td><td>4</td></tr>
+                      <tr><td>InternVL3.5-8B</td><td>3</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel prefix-tracking-panel" id="prefix-tracking-panel" role="tabpanel" aria-labelledby="prefix-tracking-tab" hidden>
+            <figure class="paper-figure paper-figure-wide qualitative-figure">
+              <img src="static/images/qualitative.png" alt="S3T qualitative results on real pouring and block-manipulation videos">
+            </figure>
+            <p class="figure-caption">S³T maintains cumulative state across long prefixes in the pouring and block-manipulation examples. The comparison models drift or miscount.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="abstract">
+      <div class="container is-max-desktop">
+        <p class="section-kicker">Overview</p>
+        <h2 class="title is-3 has-text-centered">Abstract</h2>
+        <div class="content abstract-text">
+          <p>We introduce S³T, a self-contained framework for continuous state tracking in video. S³T treats temporal sampling density as privileged information. A dense view of a clip gives a more reliable estimate of running state and teaches a sparse view processed by the same frozen video-language model. The model generates its own training target, so the method needs no labels, separate teacher, or reward signal and adds no inference cost.</p>
+          <p>With LLaVA-OneVision-2-8B, S³T improves VSTAT accuracy by <strong>2.70 points</strong>. Training uses only unlabeled synthetic clips, yet the learned capability transfers to real videos. It improves cumulative-state questions from VSTAT-YouTube by <strong>7.95 points</strong> and MVBench Action Count by <strong>4.50 points</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="container is-widescreen">
+        <p class="section-kicker">Method</p>
+        <h2 class="title is-3 has-text-centered">Temporal self-distillation from two views of one clip</h2>
+        <figure class="paper-figure paper-figure-wide">
+          <img src="static/images/architecture.png" alt="S3T architecture with sparse student, dense teacher, and frozen reference roles">
+        </figure>
+        <div class="method-summary">
+          <ol class="method-steps">
+            <li>
+              <span>01</span>
+              <div><h3>Sample the full clip twice</h3><p>The student reads 12 uniformly spaced frames and the teacher reads 24. Both views cover the same temporal extent.</p></div>
+            </li>
+            <li>
+              <span>02</span>
+              <div><h3>Score one generated answer</h3><p>The sparse student greedily answers a fixed state question. Student, teacher, and reference roles score that answer token by token.</p></div>
+            </li>
+            <li>
+              <span>03</span>
+              <div><h3>Update the student adapter</h3><p>The dense teacher supplies the positive target. The adapter-disabled base model anchors the update, and gradients flow only through the student LoRA.</p></div>
+            </li>
+          </ol>
+          <div class="equation-block" aria-label="S3T training objective">
+            $$\mathcal{L}=D_{\mathrm{JSD}}\!\left(\operatorname{sg}[P_T]\,\|\,P_S\right)+\beta\,D_{\mathrm{JSD}}\!\left(\operatorname{sg}[P_R]\,\|\,P_S\right)$$
+            <p>An adaptive controller adjusts $\beta$ to keep the reference divergence near a fixed set point.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="data">
+      <div class="container is-widescreen">
+        <div class="section-heading-split">
+          <div>
+            <p class="section-kicker align-left">Training data</p>
+            <h2 class="title is-3">StateGen</h2>
+          </div>
+          <p>300 deterministic unlabeled videos · 512 x 512 · 12 FPS · approximately 16 seconds</p>
+        </div>
+        <figure class="paper-figure paper-figure-stategen">
+          <img src="static/images/state_gen_tikz.png" alt="StateGen event vocabulary and four example training clips">
+        </figure>
+        <p class="figure-caption">Near-identical entities undergo add, remove, move, swap, and recolor events under occlusion and camera motion. State logs and visualization counts are not used for training.</p>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="container is-widescreen">
+        <p class="section-kicker">Results</p>
+        <h2 class="title is-3 has-text-centered">Results on VSTAT</h2>
+
+        <div class="result-block" id="vstat-results">
+          <h3>VSTAT leaderboard</h3>
+          <p class="result-intro">Accuracy (%) on 1,500 VSTAT questions. A dagger marks scores reproduced with our evaluation protocol.</p>
+          <div class="table-scroll" role="region" aria-label="Scrollable VSTAT leaderboard" tabindex="0">
+            <table class="paper-table leaderboard-table">
+              <thead>
+                <tr><th rowspan="2">Method</th><th rowspan="2">Avg</th><th colspan="3">State element</th><th colspan="4">State structure</th></tr>
+                <tr><th>Count</th><th>Loc.</th><th>Attr.</th><th>Atom.</th><th>Seq.</th><th>Set</th><th>Dict</th></tr>
+              </thead>
+              <tbody>
+                <tr class="human-row"><td>Human performance</td><td>90.5</td><td>92.8</td><td>89.9</td><td>86.4</td><td>93.7</td><td>77.5</td><td>90.0</td><td>92.4</td></tr>
+                <tr class="table-group"><th colspan="9">Open-source models</th></tr>
+                <tr><td>LLaVA-OV-2-8B</td><td>35.1</td><td>28.3</td><td>43.0</td><td>40.5</td><td>33.5</td><td>38.7</td><td>46.9</td><td>27.3</td></tr>
+                <tr><td>LLaVA-OV-2-8B (codec)</td><td>35.0</td><td>28.6</td><td>42.0</td><td>40.6</td><td>33.9</td><td>37.0</td><td>46.3</td><td>27.6</td></tr>
+                <tr><td>Molmo2-4B</td><td>34.4</td><td>31.6</td><td>39.7</td><td>34.5</td><td>37.1</td><td>33.6</td><td>36.7</td><td>27.1</td></tr>
+                <tr><td>Cambrian-S-7B</td><td>34.2</td><td>33.2</td><td>33.6</td><td>36.9</td><td>34.0</td><td>30.6</td><td>40.2</td><td>32.5</td></tr>
+                <tr><td>Molmo2-8B</td><td>34.0</td><td>30.9</td><td>37.0</td><td>37.0</td><td>34.7</td><td>36.3</td><td>39.1</td><td>27.0</td></tr>
+                <tr><td>Qwen3VL-8B</td><td>33.2</td><td>30.9</td><td>37.0</td><td>33.9</td><td>32.4</td><td>33.3</td><td>37.9</td><td>31.5</td></tr>
+                <tr><td>InternVL3.5-2B</td><td>31.8</td><td>29.6</td><td>33.9</td><td>34.1</td><td>31.7</td><td>29.9</td><td>36.3</td><td>29.9</td></tr>
+                <tr><td>Cambrian-S-3B</td><td>31.8</td><td>29.7</td><td>32.7</td><td>35.0</td><td>32.7</td><td>31.9</td><td>35.1</td><td>27.2</td></tr>
+                <tr><td>VITA-1.5-7B</td><td>31.5</td><td>25.5</td><td>36.3</td><td>38.6</td><td>29.4</td><td>33.0</td><td>43.1</td><td>26.3</td></tr>
+                <tr><td>Qwen3VL-4B</td><td>31.3</td><td>27.0</td><td>33.3</td><td>37.9</td><td>30.4</td><td>32.8</td><td>39.8</td><td>25.8</td></tr>
+                <tr><td>InternVL3.5-8B</td><td>30.6</td><td>25.1</td><td>33.2</td><td>39.2</td><td>26.9</td><td>33.8</td><td>41.8</td><td>28.3</td></tr>
+                <tr><td>Qwen3VL-2B</td><td>29.4</td><td>29.4</td><td>28.2</td><td>30.5</td><td>32.5</td><td>24.9</td><td>32.1</td><td>23.5</td></tr>
+                <tr><td>Cambrian-S-1.5B</td><td>29.3</td><td>26.0</td><td>34.1</td><td>31.0</td><td>28.0</td><td>31.0</td><td>31.8</td><td>29.3</td></tr>
+                <tr><td>LLaVA-OV-7B</td><td>28.6</td><td>20.1</td><td>34.8</td><td>39.4</td><td>24.5</td><td>30.0</td><td>43.8</td><td>25.0</td></tr>
+                <tr><td>LLaVA-OV-0.5B</td><td>21.3</td><td>14.6</td><td>33.9</td><td>21.7</td><td>19.7</td><td>25.8</td><td>22.2</td><td>20.9</td></tr>
+                <tr class="table-group"><th colspan="9">Self-evolving methods</th></tr>
+                <tr><td>Qwen3-VL-4B&#8224;</td><td>31.43</td><td>27.7</td><td>33.7</td><td>36.6</td><td>31.9</td><td>32.5</td><td>38.5</td><td>24.4</td></tr>
+                <tr><td>Video-Zero-4B&#8224;</td><td>31.63</td><td>27.7</td><td>34.5</td><td>36.5</td><td>32.1</td><td>32.3</td><td>37.8</td><td>25.5</td></tr>
+                <tr><td>Qwen3-VL-8B&#8224;</td><td>34.11</td><td>32.6</td><td>37.8</td><td>33.4</td><td>35.0</td><td>33.1</td><td>37.1</td><td>30.4</td></tr>
+                <tr><td>Video-Zero-8B&#8224;</td><td>33.89</td><td>32.0</td><td>37.2</td><td>34.3</td><td>34.1</td><td>35.5</td><td>38.3</td><td>29.1</td></tr>
+                <tr><td>Qwen2.5-VL-7B&#8224;</td><td>31.84</td><td>25.2</td><td>37.4</td><td>39.5</td><td>28.8</td><td>39.4</td><td>41.6</td><td>26.2</td></tr>
+                <tr><td>EvoGround&#8224;</td><td>32.66</td><td>26.7</td><td>36.6</td><td>40.6</td><td>29.7</td><td>39.5</td><td>42.9</td><td>27.0</td></tr>
+                <tr class="table-group"><th colspan="9">Ours</th></tr>
+                <tr class="ours-row"><td>LLaVA-OV-2-8B&#8224;</td><td>34.74</td><td>27.7</td><td>42.0</td><td>41.4</td><td>32.6</td><td>37.0</td><td>48.6</td><td>27.4</td></tr>
+                <tr class="ours-row"><td>S³T (SFT teacher)</td><td>34.45</td><td>26.0</td><td>42.2</td><td>43.6</td><td>30.9</td><td>38.0</td><td>50.9</td><td>27.5</td></tr>
+                <tr class="ours-row"><td>S³T</td><td>36.48</td><td>30.4</td><td>41.7</td><td>43.3</td><td>35.2</td><td>39.4</td><td>47.8</td><td>28.8</td></tr>
+                <tr class="ours-row"><td>S³T (soup)</td><td>37.12</td><td>32.4</td><td>40.7</td><td>43.0</td><td>37.2</td><td>41.4</td><td>44.9</td><td>28.4</td></tr>
+                <tr class="ours-row best-row"><td>S³T (soup, + vision enc.)</td><td><strong>37.44</strong></td><td>32.6</td><td>42.3</td><td>42.1</td><td>37.7</td><td>42.8</td><td>45.5</td><td>27.4</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">Our reproduced LLaVA-OV-2-8B base scores 34.74. Reported gains use this score as the reference.</p>
+        </div>
+
+        <div class="result-tabs" id="results-tabs" data-tabs="results">
+          <div class="tab-list" role="tablist" aria-label="Additional VSTAT results">
+            <button class="tab-button" id="results-pretexts-tab" type="button" role="tab" aria-selected="true" aria-controls="results-pretexts-panel" tabindex="0" data-tab-group="results">Per-axis and pretexts</button>
+            <button class="tab-button" id="results-ablations-tab" type="button" role="tab" aria-selected="false" aria-controls="results-ablations-panel" tabindex="-1" data-tab-group="results">Component ablations</button>
+          </div>
+
+          <div class="tab-panel" id="results-pretexts-panel" role="tabpanel" aria-labelledby="results-pretexts-tab">
+            <div class="results-detail-grid">
+              <div class="result-figure-block">
+                <h3>Per-axis comparison</h3>
+                <figure class="paper-figure paper-figure-radar">
+                  <img src="static/images/radar.svg" alt="Radar comparison of S3T and size-matched 8B open models across VSTAT axes">
+                </figure>
+                <p class="figure-caption">S³T improves Count, Atomic, and Sequence while preserving the remaining axes.</p>
+              </div>
+
+              <div class="result-block" id="temporal-pretexts">
+                <h3>Temporal pretext comparison</h3>
+                <div class="table-scroll compact-table-wrap" role="region" aria-label="Scrollable temporal pretext comparison" tabindex="0">
+                  <table class="paper-table compact-table">
+                    <thead><tr><th>Training objective</th><th>Avg</th><th>Count</th><th>Dict</th></tr></thead>
+                    <tbody>
+                      <tr><td>Base (no training)</td><td>34.74</td><td>27.7</td><td>27.4</td></tr>
+                      <tr><td>Frame-order</td><td>34.98</td><td>27.7</td><td>30.5</td></tr>
+                      <tr><td>Arrow-of-time</td><td>34.75</td><td>27.4</td><td>26.5</td></tr>
+                      <tr><td>Pace</td><td>35.45</td><td>29.0</td><td>27.1</td></tr>
+                      <tr><td>Mask-infill</td><td>34.25</td><td>25.2</td><td>26.3</td></tr>
+                      <tr class="ours-row best-row"><td>S³T</td><td><strong>36.48</strong></td><td><strong>30.4</strong></td><td>28.8</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="table-note">All methods use the same training recipe. Only the learning target changes.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="results-ablations-panel" role="tabpanel" aria-labelledby="results-ablations-tab" hidden>
+            <div class="result-block" id="component-ablations">
+              <h3>Component ablations</h3>
+              <div class="table-scroll compact-table-wrap" role="region" aria-label="Scrollable component ablations" tabindex="0">
+                <table class="paper-table compact-table">
+                  <thead><tr><th>Setting</th><th>Overall</th><th>Count</th><th>Dict</th></tr></thead>
+                  <tbody>
+                    <tr class="table-group"><th colspan="4">Teacher view</th></tr>
+                    <tr class="ours-row"><td>Temporal stretch 12 &rarr; 24 (ours)</td><td>36.48</td><td>30.4</td><td>28.8</td></tr>
+                    <tr><td>Temporal zoom (windowed)</td><td>33.91</td><td>26.1</td><td>25.2</td></tr>
+                    <tr><td>Event-aware</td><td>35.11</td><td>28.5</td><td>27.5</td></tr>
+                    <tr><td>Multi-scale {16, 32, 48}</td><td>36.23</td><td>29.9</td><td>28.1</td></tr>
+                    <tr><td>Multi-scale {12, 24, 48}</td><td>36.04</td><td>29.3</td><td>28.0</td></tr>
+                    <tr><td>Adaptive (router)</td><td>36.26</td><td>30.9</td><td>27.9</td></tr>
+                    <tr><td>Adaptive (budget-controlled)</td><td>36.49</td><td>30.4</td><td>27.7</td></tr>
+                    <tr><td>Identical 12 &rarr; 12</td><td>34.83</td><td>27.7</td><td>27.6</td></tr>
+                    <tr class="table-group"><th colspan="4">Objective</th></tr>
+                    <tr class="ours-row"><td>JSD distillation (ours)</td><td>36.48</td><td>30.4</td><td>28.8</td></tr>
+                    <tr><td>SFT on teacher text</td><td>34.45</td><td>26.0</td><td>27.5</td></tr>
+                    <tr><td>JSD to generator true state</td><td>33.90</td><td>27.5</td><td>29.2</td></tr>
+                    <tr class="table-group"><th colspan="4">Anchor</th></tr>
+                    <tr class="ours-row"><td>Reference-JSD anchor (ours)</td><td>36.48</td><td>30.4</td><td>28.8</td></tr>
+                    <tr><td>No anchor ($\beta = 0$)</td><td>33.68</td><td>27.3</td><td>27.7</td></tr>
+                    <tr class="table-group"><th colspan="4">Frame ratio</th></tr>
+                    <tr class="ours-row"><td>12 &rarr; 24 (ours)</td><td>36.48</td><td>30.4</td><td>28.8</td></tr>
+                    <tr><td>12 &rarr; 36</td><td>35.56</td><td>27.6</td><td>27.8</td></tr>
+                    <tr><td>12 &rarr; 48</td><td>34.67</td><td>27.1</td><td>27.5</td></tr>
+                    <tr><td>8 &rarr; 32</td><td>33.81</td><td>28.6</td><td>26.7</td></tr>
+                    <tr><td>24 &rarr; 48</td><td>32.63</td><td>26.5</td><td>27.5</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="transfer">
+      <div class="container is-widescreen">
+        <p class="section-kicker">Real-video transfer</p>
+        <h2 class="title is-3 has-text-centered">Transfer to real videos</h2>
+        <div class="result-block transfer-block" id="real-video-transfer">
+          <div class="table-scroll compact-table-wrap" role="region" aria-label="Scrollable real-video transfer results" tabindex="0">
+            <table class="paper-table compact-table">
+              <thead><tr><th>Real-video benchmark</th><th>S³T (soup)</th><th>S³T (soup, + vis.)</th></tr></thead>
+              <tbody>
+                <tr><td>VSTAT-YouTube, cumulative state</td><td>+7.35</td><td><strong>+7.95</strong></td></tr>
+                <tr><td>MVBench, Action Count</td><td>+3.00</td><td><strong>+4.50</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">Change in accuracy (%) from our reproduced base model.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="analysis">
+      <div class="container is-widescreen">
+        <p class="section-kicker">Analysis</p>
+        <h2 class="title is-3 has-text-centered">Teacher view and distillation objective</h2>
+
+        <div class="analysis-tabs" id="analysis-tabs" data-tabs="analysis">
+          <div class="tab-list" role="tablist" aria-label="Analysis figures">
+            <button class="tab-button" id="frame-budgets-tab" type="button" role="tab" aria-selected="true" aria-controls="frame-budgets-panel" tabindex="0" data-tab-group="analysis">Frame budgets</button>
+            <button class="tab-button" id="objectives-tab" type="button" role="tab" aria-selected="false" aria-controls="objectives-panel" tabindex="-1" data-tab-group="analysis">JSD and KL</button>
+          </div>
+
+          <div class="tab-panel" id="frame-budgets-panel" role="tabpanel" aria-labelledby="frame-budgets-tab">
+            <div class="analysis-block">
+              <h3>Student and teacher frame budgets</h3>
+              <figure class="paper-figure paper-figure-budget">
+                <img src="static/images/frame_budgets.png" alt="VSTAT gain as student and teacher frame budgets vary">
+              </figure>
+              <p class="figure-caption">The gain depends on both frame budgets. The strongest region lies near a 12-frame student and a 24-frame teacher.</p>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="objectives-panel" role="tabpanel" aria-labelledby="objectives-tab" hidden>
+            <div class="analysis-block">
+              <h3>JSD and KL objectives</h3>
+              <figure class="paper-figure paper-figure-objectives">
+                <img src="static/images/jsd_vs_kl.png" alt="JSD, forward KL, and reverse KL training curves">
+              </figure>
+              <p class="figure-caption">JSD keeps the moving teacher-student objective bounded and gives lower pre-clip gradient norms than forward or reverse KL.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container is-max-desktop has-text-centered">
+      <p>Based on the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank" rel="noopener">Academic Project Page Template</a>, adapted from <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>. Content is available under <a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="license noopener">CC BY-SA 4.0</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
